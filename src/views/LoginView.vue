@@ -1,3 +1,29 @@
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { login } from '../utils/api.js';
+
+const router = useRouter();
+
+// 表單資料
+const email = ref('');
+const password = ref('');
+
+// 登入功能
+const handleLogin = async () => {
+  try {
+    const res = await login(email.value, password.value);
+    const { token, exp } = res.data;
+    // 儲存 token
+    document.cookie = `vue3-todolist-token=${token}; expires=${exp}`;
+    alert('登入成功');
+    router.push('/todolist');
+  } catch (error) {
+    alert(error.response.data.message);
+  }
+};
+</script>
+
 <template>
   <div id="loginPage" class="bg-yellow">
     <div class="conatiner loginPage vhContainer">
@@ -24,9 +50,10 @@
             id="email"
             name="email"
             placeholder="請輸入 email"
+            v-model="email"
             required
           />
-          <span>此欄位不可留空</span>
+          <span v-if="email === ''">此欄位不可留空</span>
           <label class="formControls_label" for="pwd">密碼</label>
           <input
             class="formControls_input"
@@ -34,6 +61,7 @@
             name="pwd"
             id="pwd"
             placeholder="請輸入密碼"
+            v-model="password"
             required
           />
           <input
@@ -41,8 +69,9 @@
             type="button"
             onclick="javascript:location.href='#todoListPage'"
             value="登入"
+            @click="handleLogin"
           />
-          <a class="formControls_btnLink" href="#signUpPage">註冊帳號</a>
+          <router-link class="formControls_btnLink" to="/register">註冊帳號</router-link>
         </form>
       </div>
     </div>
