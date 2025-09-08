@@ -24,6 +24,7 @@
             id="email"
             name="email"
             placeholder="請輸入 email"
+            v-model="email"
             required
           />
           <label class="formControls_label" for="name">您的暱稱</label>
@@ -33,6 +34,7 @@
             name="name"
             id="name"
             placeholder="請輸入您的暱稱"
+            v-model="nickname"
           />
           <label class="formControls_label" for="pwd">密碼</label>
           <input
@@ -41,6 +43,7 @@
             name="pwd"
             id="pwd"
             placeholder="請輸入密碼"
+            v-model="password"
             required
           />
           <label class="formControls_label" for="pwd">再次輸入密碼</label>
@@ -48,19 +51,55 @@
             class="formControls_input"
             type="password"
             name="pwd"
-            id="pwd"
+            id="pwd1"
             placeholder="請再次輸入密碼"
+            v-model="confirmPassword"
             required
           />
           <input
             class="formControls_btnSubmit"
             type="button"
-            onclick="javascript:location.href='#todoListPage'"
+            @click="handleRegister"
             value="註冊帳號"
           />
-          <a class="formControls_btnLink" href="#loginPage">登入</a>
+          <RouterLink class="formControls_btnLink" to="/login">登入</RouterLink>
         </form>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { register } from '@/utils/api';
+const router = useRouter();
+
+// 表單資料
+const email = ref('test123@gamil.com');
+const nickname = ref('test');
+const password = ref('');
+const confirmPassword = ref('');
+
+const handleRegister = async () => {
+  // 新增：檢查密碼是否一致
+  if (password.value !== confirmPassword.value) {
+    alert('兩次輸入的密碼不一致，請重新輸入。');
+    return; // 終止函式執行
+  }
+
+  // 新增：基本的密碼長度驗證 (可選)
+  if (password.value.length < 6) {
+    alert('密碼長度需至少為 6 個字元。');
+    return;
+  }
+  try {
+    await register(email.value, password.value, nickname.value);
+    alert('註冊成功');
+    // 註冊成功後頁面轉到login頁面
+    router.push('/login');
+  } catch (error) {
+    alert(error.response.data.message);
+  }
+};
+</script>
